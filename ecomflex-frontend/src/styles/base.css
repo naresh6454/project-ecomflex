@@ -1,0 +1,171 @@
+/* stylelint-disable */
+/* postcss-disable */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+ 
+  body {
+    @apply antialiased text-neutral-text bg-brand-50;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-roboto font-bold;
+  }
+  h1 {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+  }
+  h2 {
+    @apply text-2xl md:text-3xl lg:text-4xl;
+  }
+  h3 {
+    @apply text-xl md:text-2xl lg:text-3xl;
+  }
+  h4 {
+    @apply text-lg md:text-xl;
+  }
+}
+@layer components {
+  /* Button styles */
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-xl
+           font-medium transition-all duration-200 focus:outline-none
+           focus:ring-2 focus:ring-offset-2;
+  }
+  .btn-primary {
+    @apply bg-brand-600 text-white hover:bg-brand-700 shadow-sm
+           focus:ring-brand-500;
+  }
+  .btn-accent {
+    @apply bg-accent text-neutral-text hover:bg-accent-dark shadow-sm
+           focus:ring-accent/50;
+  }
+  .btn-secondary {
+    @apply bg-white text-neutral-text border border-neutral-border
+           hover:bg-gray-50 focus:ring-brand-500;
+  }
+  .btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700
+           focus:ring-red-500;
+  }
+  /* Card styles */
+  .card {
+    @apply bg-white rounded-2xl shadow-card p-6 transition-all duration-200
+           hover:shadow-card-hover;
+  }
+  /* Form controls */
+  .form-input {
+    @apply w-full px-4 py-2 border border-neutral-border rounded-xl
+           focus:ring-2 focus:ring-brand-500 focus:border-brand-500
+           focus:outline-none transition-colors duration-200;
+  }
+  .form-label {
+    @apply block text-sm font-medium text-neutral-text mb-1;
+  }
+  .form-error {
+    @apply text-red-600 text-sm mt-1;
+  }
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  .badge-blue {
+    @apply bg-brand-100 text-brand-800;
+  }
+  .badge-green {
+    @apply bg-green-100 text-green-800;
+  }
+  .badge-yellow {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+  .badge-red {
+    @apply bg-red-100 text-red-800;
+  }
+  .badge-gold {
+    @apply bg-amber-100 text-amber-800;
+  }
+  
+  /* REMOVE THESE - they create circular dependencies */
+  /* Instead, let Tailwind generate these from your config */
+  /*
+  .animate-fade-in {
+    @apply animate-fade-in;
+  }
+  .animate-slide-up {
+    @apply animate-slide-up;
+  }
+  .animate-scale-in {
+    @apply animate-scale-in;
+  }
+  .animate-pulse-gold {
+    @apply animate-pulse-gold;
+  }
+  .animate-bounce-subtle {
+    @apply animate-bounce-subtle;
+  }
+  */
+  
+  /* Delayed animations */
+  .delay-100 {
+    animation-delay: 100ms;
+  }
+  .delay-200 {
+    animation-delay: 200ms;
+  }
+  .delay-300 {
+    animation-delay: 300ms;
+  }
+  .delay-400 {
+    animation-delay: 400ms;
+  }
+  .delay-500 {
+    animation-delay: 500ms;
+  }
+}
+/* Gold highlight effect */
+.gold-highlight {
+  position: relative;
+}
+.gold-highlight::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, rgba(255,215,0,0) 0%, rgba(255,215,0,1) 50%, rgba(255,215,0,0) 100%);
+  border-radius: 2px;
+}
+/* Ripple effect for buttons */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+.ripple::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.4);
+  width: 100px;
+  height: 100px;
+  margin-top: -50px;
+  margin-left: -50px;
+  opacity: 0;
+  transform: scale(0);
+  animation: ripple 1s;
+  pointer-events: none;
+}
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}

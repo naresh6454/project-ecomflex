@@ -1,0 +1,216 @@
+<!-- public/offline.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Ecomflex</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#3B82F6">
+  <style>
+    :root {
+      --brand-50: #F0F9FF;
+      --brand-100: #E0F2FE;
+      --brand-500: #3B82F6;
+      --brand-600: #2563EB;
+      --brand-700: #1D4ED8;
+      --accent: #FFD700;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--brand-50);
+      color: #333;
+      line-height: 1.5;
+    }
+    
+    .offline-container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+    
+    .offline-logo {
+      width: 80px;
+      height: 80px;
+      background-color: var(--brand-600);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .offline-logo svg {
+      width: 40px;
+      height: 40px;
+      color: white;
+    }
+    
+    h1 {
+      font-size: 1.875rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #1F2937;
+    }
+    
+    p {
+      color: #4B5563;
+      margin-bottom: 2rem;
+    }
+    
+    .retry-button {
+      background-color: var(--brand-600);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+    
+    .retry-button:hover {
+      background-color: var(--brand-700);
+      transform: translateY(-2px);
+    }
+    
+    .retry-button svg {
+      margin-right: 0.5rem;
+    }
+    
+    .offline-illustration {
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 2rem;
+    }
+    
+    .signal-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      margin-bottom: 2rem;
+    }
+    
+    .bar {
+      width: 8px;
+      border-radius: 2px;
+      background-color: #D1D5DB;
+    }
+    
+    .bar:nth-child(1) {
+      height: 10px;
+    }
+    
+    .bar:nth-child(2) {
+      height: 20px;
+    }
+    
+    .bar:nth-child(3) {
+      height: 30px;
+    }
+    
+    .bar:nth-child(4) {
+      height: 40px;
+    }
+    
+    .bar:nth-child(5) {
+      height: 50px;
+    }
+    
+    .bar.active {
+      background-color: var(--brand-500);
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+    
+    .pulse {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <div class="offline-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    </div>
+    
+    <h1>You're Offline</h1>
+    <p>It seems you've lost your internet connection. Please check your connection and try again.</p>
+    
+    <div class="signal-bars">
+      <div class="bar active"></div>
+      <div class="bar active"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+    
+    <button class="retry-button" onclick="window.location.reload()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+      Try Again
+    </button>
+  </div>
+  
+  <script>
+    // Animation for the signal bars
+    const bars = document.querySelectorAll('.bar');
+    let activeCount = 2; // Start with 2 bars active
+    let direction = 1; // 1 for increasing, -1 for decreasing
+    
+    function updateBars() {
+      bars.forEach((bar, index) => {
+        if (index < activeCount) {
+          bar.classList.add('active');
+        } else {
+          bar.classList.remove('active');
+        }
+      });
+      
+      activeCount += direction;
+      
+      if (activeCount >= bars.length) {
+        direction = -1;
+      } else if (activeCount <= 1) {
+        direction = 1;
+      }
+      
+      setTimeout(updateBars, 800);
+    }
+    
+    updateBars();
+    
+    // Check for network status changes
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>

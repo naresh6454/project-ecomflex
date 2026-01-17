@@ -1,0 +1,85 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: ecomflex-db
+    environment:
+      POSTGRES_USER: ecomflex
+      POSTGRES_PASSWORD: ecomflex123
+      POSTGRES_DB: ecomflexdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - ecomflex-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ecomflex -d ecomflexdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    container_name: ecomflex-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ecomflex-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./ecomflex-backend
+      dockerfile: Dockerfile
+    container_name: ecomflex-backend
+    ports:
+      - "8000:8000"
+    environment:
+      ECOMFLEX_SERVER_PORT: "8000"
+      ECOMFLEX_DATABASE_HOST: "db"
+      ECOMFLEX_DATABASE_PORT: "5432"
+      ECOMFLEX_DATABASE_USERNAME: "ecomflex"
+      ECOMFLEX_DATABASE_PASSWORD: "ecomflex123"
+      ECOMFLEX_DATABASE_DBNAME: "ecomflexdb"
+      ECOMFLEX_DATABASE_SSLMODE: "disable"
+      ECOMFLEX_CORS_ALLOW_ORIGINS: "http://localhost:3000"
+      ECOMFLEX_REDIS_HOST: "redis"
+      ECOMFLEX_REDIS_PORT: "6379"
+      ECOMFLEX_ENV: "development"
+    # Remove the command since the entrypoint.sh will now handle execution
+    restart: on-failure
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ecomflex-network
+
+  frontend:
+    build:
+      context: ./ecomflex-frontend
+      dockerfile: Dockerfile
+    container_name: ecomflex-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - ecomflex-network
+
+volumes:
+  db_data:
+  redis_data:
+
+networks:
+  ecomflex-network:
+    driver: bridge

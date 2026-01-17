@@ -1,0 +1,73 @@
+/* Global theme variables - these complement your tailwind config */
+:root {
+  --accent: #FFD700;
+  --brand-light: #e6f2ff;
+  --brand-dark: #E9C200;
+  --neutral-text: #1F2937;
+  --neutral-bg: #FFFFFF;
+}
+
+/* Fallback classes for Tailwind utilities */
+.bg-accent {
+  background-color: var(--accent);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.border-accent {
+  border-color: var(--accent);
+}
+
+.hover\:bg-brand-dark:hover {
+  background-color: var(--brand-dark);
+}
+
+.hover\:text-brand-dark:hover {
+  color: var(--brand-dark);
+}
+
+.bg-accent\/10 {
+  background-color: rgba(255, 215, 0, 0.1);
+}
+
+/* Router view transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.slide-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.slide-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+/* Fix for some layout issues */
+.router-view-container {
+  height: 100%;
+  width: 100%;
+}
+
+/* Ensure content is visible within layout */
+.influencer-dashboard,
+.influencer-content {
+  display: block;
+  min-height: 300px; /* Minimum height to ensure content is visible */
+  width: 100%;
+}

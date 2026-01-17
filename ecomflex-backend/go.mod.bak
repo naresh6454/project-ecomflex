@@ -1,0 +1,3 @@
+module github.com/naresh6454/ecomflex-backend
+
+go 1.21

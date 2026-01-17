@@ -1,0 +1,239 @@
+/* Offline Page Styles */
+:root {
+  --primary-color: #007BFF;
+  --primary-light: #E6F4FF;
+  --primary-dark: #0056b3;
+  --accent-color: #FFD700;
+  --accent-light: #FFF8E0;
+  --text-color: #333;
+  --bg-color: #F0F8FF;
+  --card-bg: #FFFFFF;
+  --border-radius: 12px;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+  --animation-speed: 0.3s;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body.offline-page {
+  background: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.offline-container {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  width: 100%;
+  max-width: 500px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.offline-logo {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  background: var(--primary-light);
+}
+
+.offline-logo img {
+  height: 60px;
+  width: auto;
+  filter: drop-shadow(0 4px 6px rgba(0, 123, 255, 0.2));
+}
+
+.offline-content {
+  padding: 2rem;
+  text-align: center;
+}
+
+.offline-content h1 {
+  color: var(--primary-color);
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.offline-content p {
+  color: var(--text-color);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.offline-animation {
+  margin: 2rem auto;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.signal-bars {
+  display: flex;
+  align-items: flex-end;
+  height: 60px;
+  gap: 6px;
+}
+
+.bar {
+  width: 12px;
+  height: 12px;
+  background-color: #ddd;
+  border-radius: 2px;
+  animation: pulse 1.5s infinite;
+}
+
+.bar:nth-child(1) {
+  height: 15px;
+  animation-delay: 0s;
+}
+
+.bar:nth-child(2) {
+  height: 30px;
+  animation-delay: 0.2s;
+}
+
+.bar:nth-child(3) {
+  height: 45px;
+  animation-delay: 0.4s;
+}
+
+.bar:nth-child(4) {
+  height: 60px;
+  animation-delay: 0.6s;
+}
+
+.retry-button {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 auto;
+  transition: transform var(--animation-speed), background-color var(--animation-speed);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.retry-button:hover, .retry-button.hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+}
+
+.retry-button .icon {
+  font-size: 1.2rem;
+  animation: spin 2s linear infinite;
+  animation-play-state: paused;
+}
+
+.retry-button:hover .icon, .retry-button.hover .icon {
+  animation-play-state: running;
+}
+
+.offline-features {
+  margin-top: 3rem;
+  background: var(--primary-light);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  text-align: left;
+}
+
+.offline-features h2 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.offline-features ul {
+  list-style-position: inside;
+  color: var(--text-color);
+}
+
+.offline-features li {
+  margin-bottom: 0.5rem;
+  padding-left: 1rem;
+  position: relative;
+  line-height: 1.5;
+}
+
+.offline-features li::before {
+  content: "•";
+  color: var(--primary-color);
+  position: absolute;
+  left: 0;
+}
+
+.offline-footer {
+  background: var(--primary-light);
+  padding: 1rem;
+  text-align: center;
+  border-top: 1px solid rgba(0, 123, 255, 0.1);
+}
+
+.offline-footer p {
+  font-size: 0.9rem;
+  color: var(--primary-color);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { background-color: #ddd; }
+  50% { background-color: var(--primary-color); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .offline-container {
+    max-width: 100%;
+  }
+  
+  .offline-content {
+    padding: 1.5rem;
+  }
+  
+  .offline-logo img {
+    height: 50px;
+  }
+  
+  .offline-content h1 {
+    font-size: 1.5rem;
+  }
+  
+  .offline-animation {
+    height: 80px;
+  }
+  
+  .signal-bars {
+    height: 50px;
+  }
+}
