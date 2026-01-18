@@ -51,7 +51,17 @@ class ProductService {
    * 🛍️ Get all active products (Admin-created, visible to influencers)
    */
   async getAllProducts(filters?: ProductFilter) {
-    const response = await api.get(`/products${filters ? `?${new URLSearchParams(filters as any).toString()}` : ''}`)
+    // Filter out undefined values to prevent "undefined" string in query params
+    const cleanedFilters = filters 
+      ? Object.fromEntries(
+          Object.entries(filters).filter(([_, value]) => value !== undefined)
+        )
+      : {}
+    
+    const queryString = Object.keys(cleanedFilters).length > 0 
+      ? `?${new URLSearchParams(cleanedFilters as any).toString()}` 
+      : ''
+    const response = await api.get(`/products${queryString}`)
     return response
   }
 
