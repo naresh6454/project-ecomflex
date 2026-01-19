@@ -143,30 +143,52 @@
         </div>
 
         <div v-if="latestProducts.length === 0" class="bg-gray-50 rounded-xl p-8 text-center">
-          <p class="text-gray-500">No products available to promote yet.</p>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <p class="text-gray-500 mb-4">No products available to promote yet.</p>
+          <a href="/influencer/products" class="text-accent hover:text-brand-dark font-medium">Browse all products →</a>
         </div>
 
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Product Card -->
-          <div v-for="product in latestProducts" :key="product.id" class="bg-white rounded-xl shadow-lg overflow-hidden transition-all hover:shadow-xl hover:scale-[1.02] duration-300">
-            <div class="relative">
-              <img :src="product.image || 'https://via.placeholder.com/400x300?text=Product'" :alt="product.name" class="w-full h-48 object-cover">
-              <span class="absolute top-3 right-3 bg-accent text-white text-sm py-1 px-3 rounded-full font-medium">
-                ${{ product.price }}
-              </span>
-            </div>
-            <div class="p-5">
-              <h3 class="text-lg font-bold text-gray-900 mb-2">{{ product.name }}</h3>
-              <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ product.description }}</p>
-              <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-500">
-                  <span class="font-medium">{{ product.referrals || 0 }}</span> referrals
-                </span>
+        <div v-else class="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div class="divide-y divide-gray-200">
+            <!-- Product List Item -->
+            <div 
+              v-for="product in latestProducts" 
+              :key="product.id" 
+              @click="goToProductsPage"
+              class="flex items-center justify-between p-5 hover:bg-gray-50 transition-colors duration-200 cursor-pointer border-l-4 border-transparent hover:border-accent"
+            >
+              <!-- Product Image and Info -->
+              <div class="flex items-center flex-1 min-w-0">
+                <div class="flex-shrink-0">
+                  <img 
+                    :src="product.image || 'https://via.placeholder.com/400x300?text=Product'" 
+                    :alt="product.name" 
+                    class="w-16 h-16 rounded-lg object-cover bg-gray-100"
+                  >
+                </div>
+                <div class="ml-4 flex-1 min-w-0">
+                  <h3 class="text-sm font-bold text-gray-900 truncate">{{ product.name }}</h3>
+                  <p class="text-xs text-gray-600 mt-1 line-clamp-1">{{ product.description }}</p>
+                  <div class="flex items-center gap-4 mt-2">
+                    <span class="text-xs text-gray-500">
+                      <span class="font-medium">{{ product.referrals || 0 }}</span> referrals
+                    </span>
+                    <span class="text-sm font-semibold text-accent">
+                      ${{ product.price }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Action Button -->
+              <div class="ml-4 flex-shrink-0">
                 <button 
-                  @click="shareProduct(product)"
-                  class="px-3 py-1.5 bg-accent text-white rounded-lg text-sm hover:bg-brand-dark transition-colors duration-200"
+                  @click.stop="shareProduct(product)"
+                  class="px-4 py-2 bg-accent text-white rounded-lg text-sm hover:bg-brand-dark transition-colors duration-200 font-medium"
                 >
-                  Share Link
+                  Share
                 </button>
               </div>
             </div>
@@ -264,12 +286,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import referralService from '../../services/referral.service';
 import api from '../../services/api';
 
 // Auth store
 const authStore = useAuthStore();
+const router = useRouter();
 
 // State
 const isLoading = ref(true);
@@ -357,6 +381,55 @@ const shareProduct = async (product: any) => {
   }
 };
 
+// Navigate to products page
+const goToProductsPage = () => {
+  router.push('/influencer/products');
+};
+
+// Helper function to extract products from various response formats
+const extractProductsFromResponse = (response: any): any[] => {
+  console.log('🔍 Full response object:', response);
+  
+  if (!response) {
+    console.warn('❌ Response is null or undefined');
+    return [];
+  }
+
+  // Backend returns: { success: true, message: "...", data: { products: [...], meta: {...} } }
+  // axios wraps this in response.data, so we get: { success: true, message: "...", data: { products: [...], meta: {...} } }
+  let data = response.data || response;
+  console.log('📊 Working with data:', data);
+
+  // The products are at: data.products
+  if (data && data.products && Array.isArray(data.products)) {
+    console.log('✅ Found products at data.products:', data.products);
+    return data.products;
+  }
+
+  // Fallback: try other paths
+  const possiblePaths = [
+    () => data?.data?.products, // Nested structure
+    () => data?.data, // Just data object
+    () => data?.products, // Direct products
+    () => Array.isArray(data) ? data : null, // Direct array
+  ];
+
+  for (const pathFn of possiblePaths) {
+    try {
+      const result = pathFn();
+      if (Array.isArray(result) && result.length > 0) {
+        console.log('✅ Found products via fallback:', result);
+        return result;
+      }
+    } catch (e) {
+      // Continue to next path
+    }
+  }
+
+  console.warn('❌ Could not find products array in response. Full response:', response);
+  return [];
+};
+
 // Load all dashboard data
 const loadDashboardData = async () => {
   isLoading.value = true;
@@ -422,24 +495,60 @@ const loadDashboardData = async () => {
 
     // Handle products
     if (productsResponse.status === 'fulfilled') {
-      console.log('✅ Products response:', productsResponse.value);
-      let productsData = productsResponse.value.data?.data || productsResponse.value.data?.products || productsResponse.value.data || [];
+      console.log('✅ Products response status: fulfilled');
+      console.log('📤 Raw productsResponse.value:', productsResponse.value);
+      
+      // productsResponse.value is the axios response object
+      // axios response has: { data: {...}, status: 200, ... }
+      // So we need to access productsResponse.value.data
+      const axiosResponse = productsResponse.value;
+      console.log('📥 Axios response:', axiosResponse);
+      
+      // Now extract products from the response
+      let productsData: any[] = [];
+      
+      // Backend returns: { success: true, data: { products: [...], meta: {...} } }
+      if (axiosResponse.data && axiosResponse.data.data && axiosResponse.data.data.products) {
+        productsData = axiosResponse.data.data.products;
+        console.log('✅ Found products at: axiosResponse.data.data.products');
+      } else if (axiosResponse.data && axiosResponse.data.products) {
+        productsData = axiosResponse.data.products;
+        console.log('✅ Found products at: axiosResponse.data.products');
+      } else {
+        // Use helper function as last resort
+        productsData = extractProductsFromResponse(axiosResponse.data);
+      }
+      
+      console.log('📦 Extracted products array:', productsData);
+      console.log('📦 Is array?', Array.isArray(productsData));
+      console.log('📦 Number of products:', productsData?.length || 0);
       
       // Ensure productsData is an array
       if (!Array.isArray(productsData)) {
+        console.warn('⚠️ Products data is not an array, using empty array');
+        console.log('📊 productsData type:', typeof productsData);
+        console.log('📊 productsData value:', productsData);
         productsData = [];
       }
       
-      latestProducts.value = productsData.slice(0, 6).map((product: any) => ({
-        id: product.id,
-        name: product.name || product.title,
-        description: product.description,
-        price: product.price || product.amount,
-        image: product.image || product.imageUrl || product.image_url,
-        referrals: product.referral_count || product.referrals || 0
-      }));
+      latestProducts.value = (productsData || []).slice(0, 6).map((product: any) => {
+        console.log('🏭 Processing product:', product);
+        return {
+          id: product.id || `product-${Math.random()}`,
+          name: product.name || product.title || 'Unnamed Product',
+          description: product.description || product.details || 'Premium product from our admin',
+          price: product.price || product.amount || '99',
+          image: product.image || product.imageUrl || product.image_url || 'https://via.placeholder.com/400x300?text=Product',
+          referrals: product.referral_count || product.referrals || 0
+        };
+      });
+      
+      console.log('✅ Final latestProducts array:', latestProducts.value);
+      console.log('✅ Number of products to display:', latestProducts.value.length);
     } else {
-      console.error('❌ Failed to load products:', productsResponse.reason);
+      console.error('❌ Failed to load products - response status: rejected');
+      console.error('❌ Error reason:', productsResponse.reason);
+      console.error('❌ Full error:', productsResponse);
       latestProducts.value = [];
     }
 
