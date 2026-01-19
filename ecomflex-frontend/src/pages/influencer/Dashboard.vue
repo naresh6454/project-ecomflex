@@ -392,6 +392,7 @@ const loadDashboardData = async () => {
     } else {
       console.error('❌ Failed to load referral code:', codeResponse.reason);
       referralCode.value = authStore.user?.email?.split('@')[0]?.toUpperCase() || 'ERROR';
+      // Don't fail on referral code error - it's not critical
     }
 
     // Handle stats
@@ -408,12 +409,27 @@ const loadDashboardData = async () => {
       };
     } else {
       console.error('❌ Failed to load stats:', statsResponse.reason);
+      // Set default stats - don't fail on this error
+      stats.value = {
+        totalReferrals: 0,
+        newReferrals: 0,
+        approvedBookings: 0,
+        approvalRate: 0,
+        pendingBookings: 0,
+        pendingAmount: '$0'
+      };
     }
 
     // Handle products
     if (productsResponse.status === 'fulfilled') {
       console.log('✅ Products response:', productsResponse.value);
-      const productsData = productsResponse.value.data?.data || productsResponse.value.data?.products || productsResponse.value.data || [];
+      let productsData = productsResponse.value.data?.data || productsResponse.value.data?.products || productsResponse.value.data || [];
+      
+      // Ensure productsData is an array
+      if (!Array.isArray(productsData)) {
+        productsData = [];
+      }
+      
       latestProducts.value = productsData.slice(0, 6).map((product: any) => ({
         id: product.id,
         name: product.name || product.title,
@@ -424,12 +440,19 @@ const loadDashboardData = async () => {
       }));
     } else {
       console.error('❌ Failed to load products:', productsResponse.reason);
+      latestProducts.value = [];
     }
 
     // Handle referrals/bookings
     if (referralsResponse.status === 'fulfilled') {
       console.log('✅ Referrals response:', referralsResponse.value);
-      const referralsData = referralsResponse.value.data?.data || referralsResponse.value.data?.referrals || referralsResponse.value.data || [];
+      let referralsData = referralsResponse.value.data?.data || referralsResponse.value.data?.referrals || referralsResponse.value.data || [];
+      
+      // Ensure referralsData is an array
+      if (!Array.isArray(referralsData)) {
+        referralsData = [];
+      }
+      
       recentBookings.value = referralsData.slice(0, 5).map((referral: any) => ({
         id: referral.id,
         user: {
@@ -446,12 +469,21 @@ const loadDashboardData = async () => {
       }));
     } else {
       console.error('❌ Failed to load referrals:', referralsResponse.reason);
+      recentBookings.value = [];
     }
 
     console.log('✅ Dashboard data loaded successfully');
   } catch (err: any) {
     console.error('❌ Error loading dashboard data:', err);
-    error.value = err.response?.data?.message || err.message || 'Failed to load dashboard data. Please try again.';
+    error.value = 'Unable to load dashboard. Please refresh the page or try again later.';
+    
+    // Log detailed error info
+    if (err.response?.status === 401) {
+      error.value = 'Your session has expired. Please login again.';
+      // Could trigger a logout here if needed
+    } else if (err.response?.status === 404) {
+      error.value = 'Some dashboard data is not available. Please contact support.';
+    }
   } finally {
     isLoading.value = false;
   }

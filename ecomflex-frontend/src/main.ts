@@ -9,13 +9,10 @@ import './styles/animations.css'
 import './styles/global.css' // Import the new global CSS
 import './services/urlInterceptor';
 
-// Mock authentication data for development
-// Remove these lines when connecting to real backend
-localStorage.setItem('token', 'mock-development-token');
-localStorage.setItem('accessToken', 'mock-development-token');
-localStorage.setItem('refreshToken', 'mock-development-refresh-token');
-localStorage.setItem('userRole', 'admin'); // Set as admin for testing
-localStorage.setItem('isSuperadminMode', 'true'); // Enable superadmin mode for development
+// Note: Do NOT hardcode mock authentication data here
+// Let the actual login process set the user role from the backend
+// This ensures that the correct user role is maintained across page reloads
+// If you need to test as admin, please login with admin credentials instead
 
 // Import PWA initialization - DISABLED FOR DEVELOPMENT
 // import { initPWA } from './pwa/register'
