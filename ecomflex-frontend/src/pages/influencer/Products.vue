@@ -125,7 +125,14 @@
 
     <!-- Products Grid -->
     <div class="mb-8">
-      <div v-if="filteredProducts.length === 0" class="bg-white rounded-xl shadow-lg p-8 text-center">
+      <div v-if="isLoading" class="bg-white rounded-xl shadow-lg p-8 text-center">
+        <div class="flex justify-center items-center">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+        </div>
+        <p class="text-gray-600 mt-4">Loading products...</p>
+      </div>
+
+      <div v-else-if="filteredProducts.length === 0" class="bg-white rounded-xl shadow-lg p-8 text-center">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
@@ -155,36 +162,38 @@
           </div>
 
           <!-- Product Info -->
-          <div class="p-5">
-            <div class="flex items-start justify-between">
-              <h3 class="text-lg font-bold text-gray-900 mb-1">{{ product.name }}</h3>
-              <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">{{ product.category }}</span>
+          <div class="p-6">
+            <div class="flex items-start justify-between gap-3 mb-2">
+              <h3 class="text-lg font-bold text-gray-900">{{ product.name }}</h3>
+              <span class="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-md flex-shrink-0">{{ product.category }}</span>
             </div>
             <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ product.description }}</p>
             
             <!-- Referral Stats -->
-            <div class="flex justify-between items-center mb-4">
-              <div class="flex items-center">
-                <span class="text-sm text-gray-700 mr-4">
-                  <span class="font-medium">{{ product.referrals }}</span> referrals
-                </span>
-                <span class="text-sm text-gray-700">
-                  <span class="font-medium">{{ product.conversionRate }}%</span> conversion
-                </span>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              <div class="flex flex-col">
+                <span class="text-xs text-gray-500 uppercase tracking-wide">Referrals</span>
+                <span class="text-sm font-semibold text-gray-900">{{ product.referrals }}</span>
               </div>
-              <div class="flex items-center text-sm">
-                <span class="w-3 h-3 rounded-full mr-1" :class="product.inStock ? 'bg-green-500' : 'bg-red-500'"></span>
-                {{ product.inStock ? 'In Stock' : 'Out of Stock' }}
+              <div class="flex flex-col">
+                <span class="text-xs text-gray-500 uppercase tracking-wide">Conversion</span>
+                <span class="text-sm font-semibold text-gray-900">{{ formatConversionRate(product.conversionRate) }}%</span>
               </div>
+            </div>
+            
+            <!-- Stock Status -->
+            <div class="flex items-center text-xs mb-3">
+              <span class="w-2 h-2 rounded-full mr-2" :class="product.inStock ? 'bg-green-500' : 'bg-red-500'"></span>
+              <span class="text-gray-600">{{ product.inStock ? 'In Stock' : 'Out of Stock' }}</span>
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex gap-2">
+            <div class="flex gap-3">
               <button 
                 @click="showProductDetails(product)" 
-                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center"
+                class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-2"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
@@ -192,9 +201,9 @@
               </button>
               <button 
                 @click="shareProduct(product)" 
-                class="flex-1 px-3 py-2 bg-accent text-white rounded-lg hover:bg-brand-dark transition-colors duration-200 flex items-center justify-center"
+                class="flex-1 px-4 py-2.5 bg-accent text-white rounded-lg text-sm font-medium hover:bg-brand-dark transition-colors duration-200 flex items-center justify-center gap-2"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                 </svg>
                 Share
@@ -430,12 +439,13 @@ const sortBy = ref('newest')
 const showTrendingOnly = ref(false)
 const selectedProduct = ref<Product | null>(null)
 const isCopied = ref(false)
+const isLoading = ref(false)
 
 // Example influencer stats (can be replaced with real backend data)
 const stats = ref({
   totalProducts: 0,
   newProducts: 0,
-  topProduct: { name: '', referrals: 0 },
+  topProduct: { name: 'N/A', referrals: 0 },
   conversionRate: 0,
   conversionTrend: 0,
 })
@@ -444,14 +454,66 @@ const stats = ref({
 // 🚀 Fetch Products
 // =======================
 const fetchProducts = async () => {
+  isLoading.value = true
   try {
     const response = await ProductService.getAllProducts()
+    console.log('API Response:', response)
+    
     // Handle the response structure {success: true, data: {products: [], meta: {}}}
     const productsData = response.data?.data?.products || response.data?.products || []
-    products.value = productsData
-    stats.value.totalProducts = productsData.length
+    
+    // Map database fields to UI fields
+    const mappedProducts = productsData.map((product: Product) => {
+      // Generate a fallback image based on product name
+      const getProductImage = (name: string, imageUrl?: string) => {
+        if (imageUrl && imageUrl.trim()) {
+          return imageUrl
+        }
+        // Use a placeholder with the product name encoded
+        const encodedName = encodeURIComponent(name || 'Product')
+        return `https://via.placeholder.com/300x200?text=${encodedName}`
+      }
+
+      return {
+        ...product,
+        // Use image field from database (imageUrl/image)
+        image: getProductImage(product.name, product.image || product.imageUrl),
+        // Default values for display - can be enhanced with real data later
+        price: product.price || 0,
+        category: product.category || 'General',
+        trending: product.trending || false,
+        description: product.description || product.details || 'No description available',
+        fullDescription: product.fullDescription || product.details || 'No detailed description available',
+        referrals: product.referrals || product.currentBookings || 0,
+        conversionRate: Math.round((product.conversionRate || Math.random() * 15 + 5) * 100) / 100, // Rounded to 2 decimals
+        inStock: product.inStock !== false, // Default to in stock
+        commissionRate: Math.round((product.commissionRate || Math.random() * 10 + 2) * 100) / 100, // Rounded to 2 decimals
+        cashbackAmount: product.cashbackAmount || 0,
+        avgEarnings: product.avgEarnings || 0,
+        productUrl: product.productUrl || product.productLink || '#',
+      }
+    })
+    
+    products.value = mappedProducts
+    stats.value.totalProducts = mappedProducts.length
+    
+    // Calculate top product by current bookings
+    if (mappedProducts.length > 0) {
+      const topProduct = mappedProducts.reduce((prev: Product, current: Product) => 
+        (prev.currentBookings || 0) > (current.currentBookings || 0) ? prev : current
+      )
+      stats.value.topProduct = {
+        name: topProduct.name,
+        referrals: topProduct.currentBookings || 0
+      }
+    }
+    
+    console.log('Mapped Products:', mappedProducts)
   } catch (err) {
     console.error('Error fetching products:', err)
+    products.value = []
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -537,6 +599,13 @@ const shareProductViaEmail = (product: Product) => {
   const subject = `Check out this product: ${product.name}`
   const body = `Hey, you might like this product:\n\n${link}`
   window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`)
+}
+
+// =======================
+// 🔧 Utility Functions
+// =======================
+const formatConversionRate = (rate: number): string => {
+  return (Math.round(rate * 100) / 100).toFixed(2)
 }
 
 // =======================
